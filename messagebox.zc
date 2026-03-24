@@ -1,0 +1,19 @@
+
+#ifdef _WIN32
+	#include <windows.h>
+#else
+	#include <stdio.h>
+#endif 
+
+
+raw{
+	int WinMain(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand) {
+		printf("Hello world!\n");
+
+        #ifdef _WIN32
+		    MessageBoxA(NULL,"Hello world","zenc",MB_OK|MB_ICONINFORMATION);
+        #endif
+
+		return 0;
+	}
+}
