@@ -1,0 +1,124 @@
+/*///> cflags:-finput-charset=UTF-8 -fexec-charset=GBK*/
+compile{"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")}
+
+#include <windows.h>
+#include <wchar.h>
+
+//custome varaible/control handler begin
+let staticText:HWND=nullptr;
+
+
+//custome varaiable/control hander end
+
+let win:HWND=nullptr;
+let defWndProc:WNDPROC=nullptr;
+raw{const wchar_t title[128]=L"Привет, мир!こんにちは世界！你好世界！नमस्ते दुनिया!👋🌎!";}
+
+fn OnWindowClose(hwnd:HWND,message:UINT,wParam:WPARAM,lParam:LPARAM)->LRESULT{
+    PostQuitMessage(0);
+    return CallWindowProc(defWndProc,hwnd,message,wParam,lParam);
+}
+fn OnWindowPaint(hwnd:HWND,message:UINT,wParam:WPARAM,lParam:LPARAM)->LRESULT{
+    //OnPaint event begin
+    /*
+    let paintStruct:PAINTSTRUCT;//=PAINTSTRUCT{};
+
+    let hdc:HDC=BeginPaint(hwnd,&paintStruct);
+    let brush:HBRUSH=CreateSolidBrush(RGB(0x00,0x20,0x10));
+    let font:HFONT=CreateFontA((int)(-34/72.0f*GetDeviceCaps(hdc,LOGPIXELSY)),
+                0,0,0,FW_BOLD,true,false,false,0,OUT_OUTLINE_PRECIS,
+                CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY,
+                DEFAULT_PITCH|FF_DONTCARE,"Arial");
+    FillRect(hdc,&paintStruct.rcPaint,brush);
+    SetTextColor(hdc,RGB(0x2D,0xFF,0x7F));
+    SetBkMode(hdc,TRANSPARENT);
+    SelectObject(hdc,font);
+    raw{DrawText(hdc,L"Γειά σου Κόσμε!Привет, мир!नमस्ते दुनिया!👋🌎!",-1,
+            &paintStruct.rcPaint,DT_SINGLELINE|DT_CENTER|DT_VCENTER);}
+    EndPaint(hwnd,&paintStruct);
+    DeleteObject(brush);
+    DeleteObject(font);
+    
+    */
+    //OnPaint event end
+    return 0;
+}
+
+
+
+//custome event callback begin
+fn OnWindowResize(hwnd:HWND,message:UINT,wParam :WPARAM,lParam: LPARAM)->LRESULT{
+    let result=CallWindowProc(defWndProc,hwnd,message,wParam,lParam);
+    //OnSize event begin
+    let windowRect:RECT;
+    let labelRect:RECT;
+    GetClientRect(win,&windowRect);
+    GetClientRect(staticText,&labelRect);
+    SetWindowPos(staticText,HWND_TOP,
+            (windowRect.right-windowRect.left-labelRect.right-labelRect.left)/2+windowRect.left,
+            (windowRect.bottom-windowRect.top-labelRect.bottom-labelRect.top)/2+windowRect.top,
+            0,0,SWP_NOSIZE);
+    //OnSize event end
+    return result;
+}
+
+fn ChangeStateTextColor(hwnd:HWND,message:UINT,wParam:WPARAM,lParam:LPARAM)->LRESULT{
+    let result=CallWindowProc(defWndProc,hwnd,message,wParam,lParam);
+    //OnTextChange event begin
+
+
+    SetTextColor((HDC)wParam,RGB(0X00,0X80,0X00));
+
+
+    //OnTextChange event end
+    return result;
+}
+fn WndProc(hwnd:HWND,message:UINT,wParam:WPARAM,lParam: LPARAM)->LRESULT{
+    if message==WM_CLOSE && hwnd==win{
+        return OnWindowClose(hwnd,message,wParam,lParam);
+    }
+    if message==WM_SIZE && hwnd==win{
+        return OnWindowResize(hwnd,message,wParam,lParam);
+    }
+    if message==WM_CTLCOLORSTATIC && (HWND)lParam==staticText{
+        return ChangeStateTextColor(hwnd,message,wParam,lParam);
+    }
+    return CallWindowProc(defWndProc,hwnd,message,wParam,lParam);
+}
+
+
+//custom event handler end
+
+fn main(){
+    //raw{wchar_t title[128]=L"Привет, мир!こんにちは世界！你好世界！नमस्ते दुनिया!👋🌎!";}
+    win=CreateWindowExW(0,(LPCWSTR)WC_DIALOG,title,WS_OVERLAPPEDWINDOW,
+                CW_USEDEFAULT,CW_USEDEFAULT,600,480,
+                nullptr,nullptr,nullptr,nullptr);
+
+    //custom controls begin
+    raw{staticText=CreateWindowExW(0,L"static"/*(LPCWSTR)WC_STATIC*/,L"नमस्ते दुनिया!👋🌎!",
+            WS_CHILD|WS_VISIBLE,
+            5,100,480,52,
+            win,nullptr,nullptr,nullptr);}
+
+    //custome controls end
+    defWndProc=(WNDPROC)SetWindowLongPtr(win,GWLP_WNDPROC,(LONG_PTR)WndProc);
+
+    SendMessage(staticText,WM_SETFONT,
+            (WPARAM)CreateFontA((int)(-34/72.0f*GetDeviceCaps(GetDC(win),
+            LOGPIXELSY)),
+            0,0,0,
+            FW_BOLD,
+            true,false,false,
+            0,OUT_OUTLINE_PRECIS,CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY,DEFAULT_PITCH|FF_DONTCARE,
+            "Arial"),
+            true);
+    ShowWindow(win,SW_SHOW);
+
+    //let message:MSG;//=MSG{};
+    raw{MSG message={0};}
+    while GetMessage(&message,nullptr,0,0){
+        DispatchMessage(&message);
+    }
+}
