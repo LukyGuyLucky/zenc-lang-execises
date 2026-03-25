@@ -1,0 +1,75 @@
+//> include:.
+//> lib:.
+//> cflags: -I. -L.
+//> link:-l cfltk2 -l fltk  -l fltk_gl   -l user32 -l shell32 -l gdi32  -l winspool -l opengl32 -l glu32 -l gdiplus -l ole32 -l oleaut32  -l imm32 -l uuid  -l comctl32 -l comdlg32  -l stdc++.dll
+
+#include <cfltk2/cfl.h> 
+#include <cfltk2/cfl_box.h>
+#include <cfltk2/cfl_button.h>
+#include <cfltk2/cfl_draw.h>
+#include <cfltk2/cfl_enums.h>
+#include <cfltk2/cfl_group.h>
+#include <cfltk2/cfl_image.h> 
+#include <cfltk2/cfl_widget.h>
+#include <cfltk2/cfl_window.h>
+#include <cfltk2/cfl_misc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+fn main(){
+    Fl_Window_show(main_window());
+
+    Fl_run();  
+}
+
+
+fn main_window()->Fl_Window*
+{
+    let ww=980;
+    let hh=680;
+    let w=(ww-40)/3;
+    let h=(hh-60)/2;
+
+    let win=Fl_Window_new(100,100,ww,hh,"fl_chart02");
+        let chart1=Fl_Chart_new(10+w*0,10+h*0,w,h,"BAR");
+            //chart1.set_type(Fl_ChartType_Bar);
+            //chart1.add();
+            Fl_Chart_set_type(chart1,Fl_ChartType_Bar);
+            add_items(chart1);
+        let chart2=Fl_Chart_new(20+w*1,10+h*0,w,h*2+20,"LINE");
+            Fl_Chart_set_type(chart2,Fl_ChartType_Line);
+            add_items(chart2);
+        let chart3=Fl_Chart_new(30+w*2,10+h*0,w,h,"FILL");
+            Fl_Chart_set_type(chart3,Fl_ChartType_Fill);
+            add_items(chart3);
+        let chart4=Fl_Chart_new(10+w*0,30+h*1,w,h,"SPIKE");
+            Fl_Chart_set_type(chart4,Fl_ChartType_Spike);
+            add_items(chart4);
+        let chart5=Fl_Chart_new(30+w*2,30+h*1,w,h,"PIE");
+            Fl_Chart_set_type(chart5,Fl_ChartType_Pie);
+            add_items(chart5);
+    return win;
+}
+fn add_items(chart:Fl_Chart*){
+    let value=100.0;
+
+    for let i=1;i<11;i++{
+        
+        Fl_Chart_add(chart,value,"{i*1.5:.1f}",i);
+        value+=-100.0+rand()%200;
+    }
+}
+impl Fl_Chart{
+    fn add(self){
+        let value=100.0;
+
+        for let i=1;i<11;i++{
+            Fl_Chart_add(self,value,"{i*1.5:.1f}",i);
+            value+=100.0+rand()%2;
+        }
+    }
+    fn set_type(self,type:int){
+        Fl_Chart_set_type(self,type);
+    }
+}
