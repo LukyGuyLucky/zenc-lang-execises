@@ -16,41 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
-fn main(){
-    Fl_Window_show(main_window());
-
-    Fl_run();  
-}
-
-
-fn main_window()->Fl_Window*
-{
-    let ww=980;
-    let hh=680;
-    let w=(ww-40)/3;
-    let h=(hh-60)/2;
-
-    let win=Fl_Window_new(100,100,ww,hh,"fl_chart02");
-        let chart1=Fl_Chart_new(10+w*0,10+h*0,w,h,"BAR");
-            //chart1.set_type(Fl_ChartType_Bar);
-            //chart1.add();
-            Fl_Chart_set_type(chart1,Fl_ChartType_Bar);
-            add_items(chart1);
-        let chart2=Fl_Chart_new(20+w*1,10+h*0,w,h*2+20,"LINE");
-            Fl_Chart_set_type(chart2,Fl_ChartType_Line);
-            add_items(chart2);
-        let chart3=Fl_Chart_new(30+w*2,10+h*0,w,h,"FILL");
-            Fl_Chart_set_type(chart3,Fl_ChartType_Fill);
-            add_items(chart3);
-        let chart4=Fl_Chart_new(10+w*0,30+h*1,w,h,"SPIKE");
-            Fl_Chart_set_type(chart4,Fl_ChartType_Spike);
-            add_items(chart4);
-        let chart5=Fl_Chart_new(30+w*2,30+h*1,w,h,"PIE");
-            Fl_Chart_set_type(chart5,Fl_ChartType_Pie);
-            add_items(chart5);
-    return win;
-}
 fn add_items(chart:Fl_Chart*){
     let value=100.0;
 
@@ -66,10 +33,51 @@ impl Fl_Chart{
 
         for let i=1;i<11;i++{
             Fl_Chart_add(self,value,"{i*1.5:.1f}",i);
-            value+=100.0+rand()%2;
+            value+=-100.0+rand()%200;
         }
     }
     fn set_type(self,type:int){
         Fl_Chart_set_type(self,type);
     }
+}
+
+fn main(){
+    srand(time(NULL));
+
+    Fl_Window_show(main_window());
+
+    Fl_run();  
+}
+
+
+fn main_window()->Fl_Window*
+{
+    let ww=980;
+    let hh=680;
+    let w=(ww-40)/3;
+    let h=(hh-60)/2;
+
+    let win=Fl_Window_new(100,100,ww,hh,"fl_chart02");
+        let chart1:Fl_Chart* =Fl_Chart_new(10+w*0,10+h*0,w,h,"BAR");
+            //call by struct method implemented by `impl`
+            chart1.set_type(Fl_ChartType_Bar);
+            chart1.add();
+
+        let chart2:Fl_Chart* =Fl_Chart_new(20+w*1,10+h*0,w,h*2+20,"LINE");
+            chart2.set_type(Fl_ChartType_Line);
+            chart2.add();
+
+        let chart3:Fl_Chart* =Fl_Chart_new(30+w*2,10+h*0,w,h,"FILL");
+            chart3.set_type(Fl_ChartType_Fill);
+            chart3.add();
+
+        let chart4=Fl_Chart_new(10+w*0,30+h*1,w,h,"SPIKE");
+            //demonstrate calling global function add_items which call by original c api
+            Fl_Chart_set_type(chart4,Fl_ChartType_Spike);
+            add_items(chart4);
+
+        let chart5=Fl_Chart_new(30+w*2,30+h*1,w,h,"PIE");
+            Fl_Chart_set_type(chart5,Fl_ChartType_Pie);
+            add_items(chart5);
+    return win;
 }
